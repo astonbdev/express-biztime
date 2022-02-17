@@ -5,7 +5,7 @@
 const express = require("express");
 const { NotFoundError } = require("./expressError");
 const companyRoutes = require("./routes/companies.js");
-const invoiceRoutes = require.apply("./routes/invoices");
+const invoiceRoutes = require("./routes/invoices.js");
 
 const app = express();
 
