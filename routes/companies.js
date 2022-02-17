@@ -5,7 +5,8 @@ const db = require("../db.js");
 const { NotFoundError } = require("../expressError.js");
 const router = new express.Router();
 
-/** returns all companies */
+
+/** returns {companies: [{code, name}, ...]} */
 router.get("/", async function (req, res) {
 
   const results = await db.query(
@@ -13,14 +14,16 @@ router.get("/", async function (req, res) {
                FROM companies`);
 
   const companies = results.rows;
-  return res.json({ companies: companies }); // CR: we can use obj shorthand here
+  return res.json({ companies }); 
 
 });
 
-// CR: TODO: Explicitly say what it accepts and what it returns
-// CR: TODO: Even provide an example, especially anything accepting a JSON body
-/** returns single company, using JSON body */
+
+/** Accepts a company code in the url, returns {companies: [{code, name}, ...]} */
 router.get("/:code", async function (req, res) {
+
+  // TODO: update to include invoices associated
+
   const code = req.params.code;
 
   const results = await db.query(
@@ -32,15 +35,19 @@ router.get("/:code", async function (req, res) {
 
   const company = results.rows[0];
   if (!company) {
-    throw new NotFoundError(); // CR: TODO: pass a helpful message in our error
+    throw new NotFoundError("Company not found");
   }
 
-  return res.json({ company: company });
+  return res.json({ company });
 });
 
-/** add single company from JSON body, returns added company */
+
+/** Accepts JSON body of {code, name, description},
+ * returns {company: {code, name, description}} */
 router.post("/", async function (req, res) {
   const { code, name, description } = req.body;
+
+  code.toLowerCase(); // Standardize our company code input to lowercase
 
   const result = await db.query(
     `INSERT INTO companies (code, name, description)
@@ -49,14 +56,15 @@ router.post("/", async function (req, res) {
     [code, name, description]
   );
 
-  // CR: TODO: Think about how you would standardize/normalize the input
-
   const company = result.rows[0];
 
-  return res.status(201).json({ company: company });
+  return res.status(201).json({ company });
 });
 
-/** replaces company data from JSON body, returns updated company */
+
+/** Accepts JSON body of {name, description}, 
+ * replaces company data from JSON body, 
+ * returns updated company object of {company: {code, name, description}} */
 router.put("/:code", async function (req, res) {
   const code = req.params.code;
   const { name, description } = req.body;
@@ -72,47 +80,33 @@ router.put("/:code", async function (req, res) {
 
   const company = result.rows[0];
   if (!company) {
-    throw new NotFoundError(); // CR: TODO: error message
+    throw new NotFoundError("Company code not found.");
   }
 
-  return res.json({ company: company });
+  return res.json({ company });
 });
 
-/** deletes company from db, returns successful deletion message */
+
+/** Accepts company code in url, deletes company from db,
+ *  returns {status: "deleted"} */
 router.delete("/:code", async function (req, res) {
 
-  const results = await db.query(
-    `SELECT code, name, description
-               FROM companies
-               WHERE code = $1`,
+  const code = req.params.code;
+
+  const deleteResults = await db.query(
+    `DELETE FROM companies 
+      WHERE code = $1
+      RETURNING code`,
     [code]
   );
 
-  const company = results.rows[0];
-
-
-
-  if (company) {
-    await db.query(
-      "DELETE FROM companies WHERE code = $1",
-      [req.params.code]
-
-      // CR: TODO: have this return the company code (SQL line) that was deleted
-    );
-  }
-  else {
-    throw new NotFoundError();
+  if (deleteResults === undefined) {
+    throw new NotFoundError("Company code not found; not deleted.");
   }
 
-  return res.json({ message: "Deleted" });
+  return res.json({ status: "deleted" });
 });
 
 module.exports = router;
-
-// SELECT amt
-//     FROM invoices
-//     WHERE comp_code = $1
-//     JOIN companies
-//     ON companies.code = invoices.comp_code
 
 
