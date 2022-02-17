@@ -2,6 +2,7 @@
 
 const express = require("express");
 const { NotFoundError } = require("./expressError");
+const companyRoutes = require("./routes/companies.js");
 
 const app = express();
 
