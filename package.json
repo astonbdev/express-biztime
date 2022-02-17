@@ -1,7 +1,6 @@
 {
   "name": "express-biztime",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,5 +13,14 @@
     "express": "^5.0.0-beta.1",
     "pg": "^8.7.3",
     "supertest": "^6.2.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astonbdev/express-biztime.git"
+  },
+  "bugs": {
+    "url": "https://github.com/astonbdev/express-biztime/issues"
+  },
+  "homepage": "https://github.com/astonbdev/express-biztime#readme",
+  "description": ""
 }
