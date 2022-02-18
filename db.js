@@ -4,8 +4,6 @@
 
 const { Client } = require("pg");
 
-console.log("NODE_ENV", process.env.NODE_ENV);
-
 const DB_URI = process.env.NODE_ENV === "test"
     ? "postgresql:///biztime_test"
     : "postgresql:///biztime";

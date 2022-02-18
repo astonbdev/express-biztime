@@ -108,7 +108,7 @@ router.delete("/:code", async function (req, res) {
     [code]
   );
 
-  if (deleteResults === undefined) {
+  if (deleteResults.rows.length === 0) {
     throw new NotFoundError("Company code not found; not deleted.");
   }
 
