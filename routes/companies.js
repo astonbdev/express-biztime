@@ -14,7 +14,7 @@ router.get("/", async function (req, res) {
                FROM companies`);
 
   const companies = results.rows;
-  return res.json({ companies }); 
+  return res.json({ companies });
 
 });
 
@@ -22,21 +22,29 @@ router.get("/", async function (req, res) {
 /** Accepts a company code in the url, returns {companies: [{code, name}, ...]} */
 router.get("/:code", async function (req, res) {
 
-  // TODO: update to include invoices associated
-
   const code = req.params.code;
 
-  const results = await db.query(
+  const compResult = await db.query(
     `SELECT code, name, description
                FROM companies
                WHERE code = $1`,
     [code]
   );
 
-  const company = results.rows[0];
+  const company = compResult.rows[0];
   if (!company) {
     throw new NotFoundError("Company not found");
   }
+
+  const invResults = await db.query(
+    `SELECT id, amt, paid, add_date, paid_date, comp_code
+               FROM invoices
+               WHERE comp_code = $1`,
+    [code]
+  );
+
+  const invoices = invResults.rows;
+  company.invoices = invoices;
 
   return res.json({ company });
 });
