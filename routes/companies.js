@@ -14,7 +14,7 @@ router.get("/", async function (req, res) {
                FROM companies`);
 
   const companies = results.rows;
-  return res.json({ companies }); 
+  return res.json({ companies });
 
 });
 
@@ -62,8 +62,8 @@ router.post("/", async function (req, res) {
 });
 
 
-/** Accepts JSON body of {name, description}, 
- * replaces company data from JSON body, 
+/** Accepts JSON body of {name, description},
+ * replaces company data from JSON body,
  * returns updated company object of {company: {code, name, description}} */
 router.put("/:code", async function (req, res) {
   const code = req.params.code;
@@ -94,7 +94,7 @@ router.delete("/:code", async function (req, res) {
   const code = req.params.code;
 
   const deleteResults = await db.query(
-    `DELETE FROM companies 
+    `DELETE FROM companies
       WHERE code = $1
       RETURNING code`,
     [code]
